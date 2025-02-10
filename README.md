@@ -44,6 +44,7 @@ Selain itu, skrip mendukung pemilihan akun dari file cookies yang tersimpan dala
 
 2. **Buat Virtual Environment** (opsional, tapi direkomendasikan):
    ```bash
+   cd autoYT
    python -m venv venv
    source venv/bin/activate  # Untuk Linux/MacOS
    # Pada Windows:
