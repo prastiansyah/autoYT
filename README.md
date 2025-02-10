@@ -1,4 +1,5 @@
-# YouTube Automation Script
+![image](https://github.com/user-attachments/assets/1ec61b32-5d38-403e-854c-1fcc71647b2f)
+ YouTube Automation Script
 
 Skrip ini digunakan untuk mengotomatisasi berbagai aksi di YouTube, seperti:
 - **Login manual dan menyimpan sesi cookies** (untuk Gmail & YouTube)
@@ -39,11 +40,15 @@ Selain itu, skrip mendukung pemilihan akun dari file cookies yang tersimpan dala
 
 ## Instalasi
 
-1. **Clone repository** (atau salin skrip ke direktori pilihan Anda).
+1. **Clone repository**
+   git clone https://github.com/prastiansyah/autoYT.git
 
 2. **Buat Virtual Environment** (opsional, tapi direkomendasikan):
    ```bash
-   python3 -m venv venv
+   python -m venv venv
    source venv/bin/activate  # Untuk Linux/MacOS
    # Pada Windows:
    # venv\Scripts\activate
+   pip install -r requirements.txt
+   python bot.py
+
