@@ -304,18 +304,25 @@ def main():
                 print(Fore.CYAN + "Daftar akun cookies:" + Style.RESET_ALL)
                 for idx, f in enumerate(cookies_files, start=1):
                     print(f"{idx}. {f}")
-                range_input = input(Fore.YELLOW + "Masukkan range (contoh: 1-3): " + Style.RESET_ALL)
+                range_input = input(Fore.YELLOW + "Masukkan range (contoh: 1-3) atau satu angka: " + Style.RESET_ALL)
                 try:
-                    start_str, end_str = range_input.split("-")
-                    start_idx, end_idx = int(start_str), int(end_str)
-                    if start_idx < 1 or end_idx > len(cookies_files) or start_idx > end_idx:
-                        print(Fore.RED + "Range tidak valid." + Style.RESET_ALL)
-                        continue
-                    selected_files = cookies_files[start_idx-1:end_idx]
+                    if '-' in range_input:
+                        start_str, end_str = range_input.split("-")
+                        start_idx, end_idx = int(start_str), int(end_str)
+                        if start_idx < 1 or end_idx > len(cookies_files) or start_idx > end_idx:
+                            print(Fore.RED + "Range tidak valid." + Style.RESET_ALL)
+                            continue
+                        selected_files = cookies_files[start_idx-1:end_idx]
+                    else:
+                        index = int(range_input)
+                        if index < 1 or index > len(cookies_files):
+                            print(Fore.RED + "Index tidak valid." + Style.RESET_ALL)
+                            continue
+                        selected_files = [cookies_files[index-1]]
                     # Ekstrak nama akun dari file (format: cookies_(accountname).pkl)
                     selected_accounts = [f[len("cookies_"):-len(".pkl")] for f in selected_files]
                 except Exception as e:
-                    print(Fore.RED + "Format range tidak valid." + Style.RESET_ALL)
+                    print(Fore.RED + "Format input tidak valid." + Style.RESET_ALL)
                     continue
             else:
                 print(Fore.RED + "Pilihan tidak valid untuk mode cookies." + Style.RESET_ALL)
@@ -350,7 +357,7 @@ def main():
                     auto_comment_video(driver, "short.txt", "commentshort.txt", do_scroll=False)
                 elif choice == "6":
                     # Opsi 6: Auto Subscribe Channel
-                    auto_subscribe_channel(driver, "channel.txt", "//*[@id='page-header']/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-flexible-actions-view-model/div/yt-subscribe-button-view-model/yt-animated-action/div[1]/div[2]/button/yt-touch-feedback-shape/div")
+                    auto_subscribe_channel(driver, "channel.txt", "//*[@id='page-header']")
                 driver.quit()
 
         elif choice == "7":
