@@ -253,11 +253,11 @@ def main():
         # Tampilkan menu dengan warna
         print(Fore.CYAN + "\nPilih opsi:" + Style.RESET_ALL)
         print(Fore.GREEN + "1. Login manual dan menyimpan sesi di cookies (Gmail & YouTube)" + Style.RESET_ALL)
-        print(Fore.GREEN + "2. Auto Like Video/Live streaming YouTube (link di video.txt)" + Style.RESET_ALL)
-        print(Fore.GREEN + "3. Auto Comment Video YouTube" + Style.RESET_ALL)
-        print(Fore.GREEN + "4. Auto Like Video Short" + Style.RESET_ALL)
-        print(Fore.GREEN + "5. Auto Comment Video Short" + Style.RESET_ALL)
-        print(Fore.GREEN + "6. Auto Subscribe Channel (link di channel.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "2. Auto Like Video/Live streaming YouTube (Menggunakan link di video.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "3. Auto Comment Video YouTube (Menggunakan link di video.txt dan teks commentvideo.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "4. Auto Like Video Short (Menggunakan link di short.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "5. Auto Comment Video Short (Menggunakan link di short.txt dan teks commentshort.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "6. Auto Subscribe Channel (Menggunakan link di channel.txt)" + Style.RESET_ALL)
         print(Fore.GREEN + "7. Exit" + Style.RESET_ALL)
         choice = input(Fore.YELLOW + "Masukkan pilihan: " + Style.RESET_ALL)
 
