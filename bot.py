@@ -2,14 +2,12 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import time
-import json
 import random
 import pickle  # Untuk penyimpanan cookies menggunakan pickle
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
@@ -38,7 +36,8 @@ def init_chrome_driver_incognito():
     chrome_options = Options()
     chrome_options.add_argument("--incognito")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    # Tambahkan "enable-logging" agar tidak mencetak log berlebih
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument("--disable-gpu")
@@ -55,7 +54,7 @@ def init_chrome_driver(headless=False):
         # Atur ukuran window pada mode headless agar sesuai dengan resolusi yang diinginkan
         chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument("--disable-gpu")
@@ -128,8 +127,15 @@ def auto_scroll(driver, distance=300, count=1):
 def auto_like_video(driver, filename, xpath, do_scroll=False):
     links = load_file_content(filename)
     for link in links:
+        if not link.startswith("http"):
+            print(Fore.RED + f"URL tidak valid: {link}" + Style.RESET_ALL)
+            continue
         print(Fore.CYAN + f"Menyukai video: {link}" + Style.RESET_ALL)
-        driver.get(link)
+        try:
+            driver.get(link)
+        except Exception as e:
+            print(Fore.RED + f"Gagal membuka URL: {link}. Error: {e}" + Style.RESET_ALL)
+            continue
         delay_with_countdown(random.uniform(10.5, 15.5))
         try:
             if do_scroll:
@@ -151,26 +157,30 @@ def auto_comment_video_youtube(driver, video_file, comment_file, placeholder_xpa
     links = load_file_content(video_file)
     comments = load_file_content(comment_file)
     for link in links:
+        if not link.startswith("http"):
+            print(Fore.RED + f"URL tidak valid: {link}" + Style.RESET_ALL)
+            continue
         print(Fore.CYAN + f"Mengomentari video: {link}" + Style.RESET_ALL)
-        driver.get(link)
+        try:
+            driver.get(link)
+        except Exception as e:
+            print(Fore.RED + f"Gagal membuka URL: {link}. Error: {e}" + Style.RESET_ALL)
+            continue
         delay_with_countdown(random.uniform(10.5, 15.5))
         try:
             if do_scroll:
                 auto_scroll(driver, distance=300, count=1)
-            # Klik area placeholder agar field komentar aktif
             placeholder = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, placeholder_xpath))
             )
             placeholder.click()
             time.sleep(1)
-            # Cari elemen input komentar dan masukkan teks komentar
             comment_input = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, input_xpath))
             )
             comment = random.choice(comments)
             comment_input.send_keys(comment)
             time.sleep(3)
-            # Klik tombol "Comment" untuk mengirim komentar
             comment_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//*[@id='submit-button']"))
             )
@@ -187,32 +197,35 @@ def auto_comment_video(driver, video_file, comment_file, do_scroll=False):
     links = load_file_content(video_file)
     comments = load_file_content(comment_file)
     for link in links:
+        if not link.startswith("http"):
+            print(Fore.RED + f"URL tidak valid: {link}" + Style.RESET_ALL)
+            continue
         print(Fore.CYAN + f"Mengomentari video Short: {link}" + Style.RESET_ALL)
-        driver.get(link)
+        try:
+            driver.get(link)
+        except Exception as e:
+            print(Fore.RED + f"Gagal membuka URL: {link}. Error: {e}" + Style.RESET_ALL)
+            continue
         delay_with_countdown(random.uniform(10.5, 15.5))
         try:
             if do_scroll:
                 auto_scroll(driver, distance=300, count=1)
-            # Langkah 1: Klik logo comment
             comment_logo = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//*[@id='comments-button']"))
             )
             comment_logo.click()
             time.sleep(3)
-            # Langkah 2: Klik placeholder komentar
             placeholder = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//*[@id='placeholder-area']"))
             )
             placeholder.click()
             time.sleep(3)
-            # Langkah 3: Masukkan teks komentar
             comment_input = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, "//*[@id='contenteditable-root']"))
             )
             comment = random.choice(comments)
             comment_input.send_keys(comment)
             time.sleep(3)
-            # Langkah 4: Klik tombol send/kirim
             send_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//*[@id='submit-button']"))
             )
@@ -230,11 +243,17 @@ def auto_comment_video(driver, video_file, comment_file, do_scroll=False):
 def auto_subscribe_channel(driver, channel_file, xpath):
     channels = load_file_content(channel_file)
     for link in channels:
+        if not link.startswith("http"):
+            print(Fore.RED + f"URL tidak valid: {link}" + Style.RESET_ALL)
+            continue
         print(Fore.CYAN + f"Mengunjungi channel: {link}" + Style.RESET_ALL)
-        driver.get(link)
+        try:
+            driver.get(link)
+        except Exception as e:
+            print(Fore.RED + f"Gagal membuka URL: {link}. Error: {e}" + Style.RESET_ALL)
+            continue
         delay_with_countdown(random.uniform(10.5, 15.5))
         try:
-            # Klik tombol subscribe menggunakan XPath yang diberikan
             subscribe_button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, xpath))
             )
@@ -250,20 +269,18 @@ def auto_subscribe_channel(driver, channel_file, xpath):
 def main():
     print_banner()
     while True:
-        # Tampilkan menu dengan warna
         print(Fore.CYAN + "\nPilih opsi:" + Style.RESET_ALL)
         print(Fore.GREEN + "1. Login manual dan menyimpan sesi di cookies (Gmail & YouTube)" + Style.RESET_ALL)
-        print(Fore.GREEN + "2. Auto Like Video/Live streaming YouTube (Menggunakan link di video.txt)" + Style.RESET_ALL)
-        print(Fore.GREEN + "3. Auto Comment Video YouTube (Menggunakan link di video.txt dan teks commentvideo.txt)" + Style.RESET_ALL)
-        print(Fore.GREEN + "4. Auto Like Video Short (Menggunakan link di short.txt)" + Style.RESET_ALL)
-        print(Fore.GREEN + "5. Auto Comment Video Short (Menggunakan link di short.txt dan teks commentshort.txt)" + Style.RESET_ALL)
-        print(Fore.GREEN + "6. Auto Subscribe Channel (Menggunakan link di channel.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "2. Auto Like Video/Live streaming YouTube (link di video.txt)" + Style.RESET_ALL)
+        print(Fore.GREEN + "3. Auto Comment Video YouTube" + Style.RESET_ALL)
+        print(Fore.GREEN + "4. Auto Like Video Short" + Style.RESET_ALL)
+        print(Fore.GREEN + "5. Auto Comment Video Short" + Style.RESET_ALL)
+        print(Fore.GREEN + "6. Auto Subscribe Channel (link di channel.txt)" + Style.RESET_ALL)
         print(Fore.GREEN + "7. Exit" + Style.RESET_ALL)
         choice = input(Fore.YELLOW + "Masukkan pilihan: " + Style.RESET_ALL)
 
         if choice == "1":
             account_name = input(Fore.YELLOW + "Masukkan nama akun: " + Style.RESET_ALL)
-            # Tampilan Banner Gmail (warna biru)
             print("\033[94m")
             print("""
           ██████╗  ███╗   ███╗ █████╗ ██╗██╗     
@@ -275,18 +292,26 @@ def main():
             """)
             print("\033[0m")
             driver = init_chrome_driver_incognito()
-            driver.get("https://accounts.google.com/signin")
+            try:
+                driver.get("https://accounts.google.com/signin")
+            except Exception as e:
+                print(Fore.RED + f"Gagal membuka halaman login Gmail. Error: {e}" + Style.RESET_ALL)
+                driver.quit()
+                continue
             print(Fore.BLUE + "Silakan login ke Gmail secara manual." + Style.RESET_ALL)
             input(Fore.YELLOW + "Tekan Enter jika sudah selesai login di Gmail..." + Style.RESET_ALL)
-            # Setelah login, navigasikan ke YouTube agar cookies yang tersimpan sesuai dengan domain YouTube
-            driver.get("https://www.youtube.com")
+            try:
+                driver.get("https://www.youtube.com")
+            except Exception as e:
+                print(Fore.RED + f"Gagal membuka YouTube. Error: {e}" + Style.RESET_ALL)
+                driver.quit()
+                continue
             print(Fore.BLUE + "Sedang menunggu halaman YouTube termuat untuk menyimpan cookies..." + Style.RESET_ALL)
             time.sleep(10)
             save_cookies(driver, account_name)
             driver.quit()
 
         elif choice in ["2", "3", "4", "5", "6"]:
-            # Pilih mode pemilihan cookies: pernama atau perbaris
             mode_select = input(Fore.YELLOW + "Jalankan cookies pernama/perbaris: " + Style.RESET_ALL).strip().lower()
             if mode_select == "pernama":
                 account_name = input(Fore.YELLOW + "Masukkan nama akun yang ingin digunakan: " + Style.RESET_ALL)
@@ -319,7 +344,6 @@ def main():
                             print(Fore.RED + "Index tidak valid." + Style.RESET_ALL)
                             continue
                         selected_files = [cookies_files[index-1]]
-                    # Ekstrak nama akun dari file (format: cookies_(accountname).pkl)
                     selected_accounts = [f[len("cookies_"):-len(".pkl")] for f in selected_files]
                 except Exception as e:
                     print(Fore.RED + "Format input tidak valid." + Style.RESET_ALL)
@@ -331,33 +355,32 @@ def main():
             headless_input = input(Fore.YELLOW + "Mode headless diaktifkan (true/false): " + Style.RESET_ALL).strip().lower()
             headless_mode = (headless_input == "true")
 
-            # Proses setiap akun yang dipilih
             for account in selected_accounts:
                 print(Fore.CYAN + f"Menggunakan cookies untuk akun: {account}" + Style.RESET_ALL)
                 driver = init_chrome_driver(headless=headless_mode)
-                driver.get("https://www.youtube.com/")
-                time.sleep(5)  # Pastikan halaman termuat sebelum menambahkan cookies
+                try:
+                    driver.get("https://www.youtube.com/")
+                except Exception as e:
+                    print(Fore.RED + f"Gagal membuka YouTube. Error: {e}" + Style.RESET_ALL)
+                    driver.quit()
+                    continue
+                time.sleep(5)
                 load_cookies(driver, account)
                 driver.refresh()
 
                 if choice == "2":
-                    # Opsi 2: Auto Like Video YouTube tanpa scroll
                     auto_like_video(driver, "video.txt", "//button[contains(@aria-label, 'like')]", do_scroll=False)
                 elif choice == "3":
-                    # Opsi 3: Auto Comment Video YouTube
                     auto_comment_video_youtube(driver, "video.txt", "commentvideo.txt",
                                                "//*[@id='placeholder-area']",
                                                "//*[@id='contenteditable-root']",
                                                do_scroll=True)
                 elif choice == "4":
-                    # Opsi 4: Auto Like Video Short tanpa scroll
                     auto_like_video(driver, "short.txt", "//button[contains(@aria-label, 'like')]", do_scroll=False)
                 elif choice == "5":
-                    # Opsi 5: Auto Comment Video Short
                     auto_comment_video(driver, "short.txt", "commentshort.txt", do_scroll=False)
                 elif choice == "6":
-                    # Opsi 6: Auto Subscribe Channel
-                    auto_subscribe_channel(driver, "channel.txt", "//*[@id='page-header']")
+                    auto_subscribe_channel(driver, "channel.txt", "//*[@id='page-header']/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-flexible-actions-view-model/div/yt-subscribe-button-view-model/yt-animated-action/div[1]/div[2]/button/yt-touch-feedback-shape/div")
                 driver.quit()
 
         elif choice == "7":
